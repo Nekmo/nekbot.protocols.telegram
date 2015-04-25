@@ -1,0 +1,4 @@
+nekbot
+# Required by Telegram
+-e git+git@bitbucket.org:Nekmo/pytg2.git@master#egg=pytg-master
+future==0.14.3
