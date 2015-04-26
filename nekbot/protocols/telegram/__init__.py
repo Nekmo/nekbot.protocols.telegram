@@ -4,6 +4,7 @@ import pytg
 from pytg.tg import message as tg_message
 from pytg.utils import coroutine, broadcast
 from nekbot.protocols import Protocol
+from nekbot.protocols.telegram.group_chat import GroupChatsTelegram
 from nekbot.protocols.telegram.message import MessageTelegram
 
 __author__ = 'nekmo'
@@ -12,15 +13,14 @@ __dir__ = os.path.dirname(__file__)
 TELEGRAM_BIN = os.path.abspath(os.path.join(__dir__, 'bin/telegram-cli'))
 TELEGRAM_PUB = os.path.abspath(os.path.join(__dir__, 'bin/server.pub'))
 
-ADMIN_USERID = 14390491
-# Bot will respond to command the posted in this chat group
-CHAT_GROUP = 'Testing'
 
 logger = getLogger('nekbot.protocols.telegram')
 
 
 class Telegram(Protocol):
     def init(self):
+        self.groupchats = GroupChatsTelegram(self)
+        self.bot = None # User Bot
         self.tg = pytg.Telegram(TELEGRAM_BIN, TELEGRAM_PUB)
         # Create processing pipeline
         pipeline = broadcast([
