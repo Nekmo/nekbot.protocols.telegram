@@ -21,17 +21,15 @@ class MessageTelegram(Message):
         user = UserTelegram(protocol, msg.user)
         self.msg = msg
         if self.is_groupchat:
-            groupchat = GroupChatTelegram(protocol, msg.groupname)
+            groupchat = GroupChatTelegram(protocol, msg.groupname, int(self.msg.groupid))
         else:
             groupchat = None
         if protocol.bot is None and self.msg.ownmsg:
             protocol.bot = user
         super(MessageTelegram, self).__init__(protocol, msg.message, user, groupchat)
 
-    def reply(self, body):
-        if not isinstance(body, (str, unicode)):
-            body = str(body)
-        self.protocol.tg.msg(self.msg.reply.cmd, body)
+    def reply(self, body, notice=False):
+        self.protocol.tg.msg(self.msg.reply.cmd, self.protocol.prepare_message(body))
 
     @property
     def is_from_me(self):

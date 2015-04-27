@@ -30,6 +30,12 @@ class Telegram(Protocol):
         # Start telegram cli
         self.tg.start()
 
+    def prepare_message(self, body):
+        if not isinstance(body, (str, unicode)):
+            body = str(body)
+        body = body.decode('utf-8')
+        return body
+
     @coroutine
     def input_message(self, tg):
         # To avoid ping flood attack, we'll respond to ping once every 10 sec
