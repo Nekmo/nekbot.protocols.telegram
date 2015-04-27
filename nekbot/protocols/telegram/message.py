@@ -8,6 +8,7 @@ __author__ = 'nekmo'
 
 logger = getLogger('nekbot.protocols.telegram.message')
 
+
 class MessageTelegram(Message):
     def __init__(self, protocol, msg):
         logger.debug('New message: %s' % vars(msg))
@@ -20,7 +21,7 @@ class MessageTelegram(Message):
         if protocol.bot is None and self.msg.ownmsg:
             protocol.bot = user
         # HACK: Mark messages from historic
-        if (datetime.now() + timedelta(seconds=10)) > self.protocol.nekbot.start_datetime and \
+        if self.protocol.nekbot.start_datetime > (datetime.now() + timedelta(seconds=10)) and \
                         self.msg.timestamp != datetime.now().strftime("%H:%M"):
             self.historical = True
         super(MessageTelegram, self).__init__(protocol, msg.message, user, groupchat)
