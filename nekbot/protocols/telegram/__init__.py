@@ -33,7 +33,10 @@ class Telegram(Protocol):
     def prepare_message(self, body):
         if not isinstance(body, (str, unicode)):
             body = str(body)
-        body = body.decode('utf-8')
+        try:
+            body = body.decode('utf-8')
+        except:
+            pass
         return body
 
     @coroutine
@@ -43,20 +46,6 @@ class Telegram(Protocol):
             while True:
                 msg = (yield)
                 self.propagate('message', MessageTelegram(self, msg))
-
-                # Only process if the group name match
-                # if msg.group.name == CHAT_GROUP:
-                #     cmd = msg.message.strip().split(' ')
-                #     if len(cmd) == 1:
-                #         # ping command
-                #         if cmd[0].lower() == 'ping':
-                #             tg.msg(msg.reply.cmd, 'pong')
-                #         # quit command
-                #         elif cmd[0].lower() == 'quit':
-                #             if msg.user.id == ADMIN_USERID:  # Checking user id
-                #                 tg.msg(msg.reply.cmd, 'By your command.')  # reply to same chat (group or user)
-                #                 tg.msg(msg.user.cmd, 'Good bye.')  # reply to user directly
-                #                 QUIT = True
         except GeneratorExit:
             pass
 

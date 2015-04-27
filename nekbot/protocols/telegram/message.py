@@ -1,23 +1,16 @@
+from logging import getLogger
+from datetime import datetime, timedelta
 from nekbot.protocols.telegram.group_chat import GroupChatTelegram
 from nekbot.protocols.telegram.user import UserTelegram
 from nekbot.protocols import Message
 
 __author__ = 'nekmo'
 
-# Bot ID: 110261251
-
-# {'username': 'Nekmo', 'timestamp': '00:58', 'groupname': 'Testing', 'user': 'chat#Nekmo#14390491',
-# 'peer': 'group chat', 'message': '!about', 'group': 'chat#Testing#13894118', 'media': None,
-# 'groupcmd': 'Testing', 'userid': '14390491', 'groupid': '13894118', 'usercmd': 'Nekmo',
-# 'msgid': '1585', 'reply': 'chat#Testing#13894118', 'type': 'message', 'ownmsg': False}
-
-# {'username': 'Nekmo', 'timestamp': '00:58', 'groupname': None, 'user': 'chat#Nekmo#14390491',
-#  'peer': 'user chat', 'message': '!about', 'group': None, 'media': None, 'groupcmd': None,
-#  'userid': '14390491', 'groupid': None, 'usercmd': 'Nekmo', 'msgid': '1587', 'reply':
-#  'chat#Nekmo#14390491', 'type': 'message', 'ownmsg': False}
+logger = getLogger('nekbot.protocols.telegram.message')
 
 class MessageTelegram(Message):
     def __init__(self, protocol, msg):
+        logger.debug('New message: %s' % vars(msg))
         user = UserTelegram(protocol, msg.user)
         self.msg = msg
         if self.is_groupchat:
@@ -26,6 +19,10 @@ class MessageTelegram(Message):
             groupchat = None
         if protocol.bot is None and self.msg.ownmsg:
             protocol.bot = user
+        # HACK: Mark messages from historic
+        if (datetime.now() + timedelta(seconds=10)) > self.protocol.nekbot.start_datetime and \
+                        self.msg.timestamp != datetime.now().strftime("%H:%M"):
+            self.historical = True
         super(MessageTelegram, self).__init__(protocol, msg.message, user, groupchat)
 
     def reply(self, body, notice=False):
