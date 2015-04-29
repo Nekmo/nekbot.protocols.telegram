@@ -15,7 +15,7 @@ def get_url(ir):
     return ir.link.url
 
 requirements = parse_requirements('requirements.txt', session=uuid.uuid1())
-install_requires = [str(ir.req) for ir in requirements if get_url(ir)]
+install_requires = [str(ir.req) for ir in requirements if not get_url(ir)]
 
 setup(
     name='nekbot.protocols.telegram',
@@ -66,7 +66,7 @@ setup(
     keywords=['nekbot', 'bot', 'telegram', 'chat'],
     
     dependency_links=[
-        'https://bitbucket.org/Nekmo/pytg2/get/74f08a3bda11.zip#egg=pytg',
+        'https://bitbucket.org/Nekmo/pytg2/get/74f08a3bda11.zip#egg=pytg2',
     ],
 
     entry_points={
