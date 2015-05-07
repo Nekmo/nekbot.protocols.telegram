@@ -1,11 +1,14 @@
+# coding=utf-8
 from logging import getLogger
 import os
-import pytg
-from pytg.tg import message as tg_message
-from pytg.utils import coroutine, broadcast
+# import pytg
+# from pytg.tg import message as tg_message
+from pytg2.utils import coroutine
+from pytg2.argumenttypes import peer
 from nekbot.protocols import Protocol
 from nekbot.protocols.telegram.group_chat import GroupChatsTelegram
 from nekbot.protocols.telegram.message import MessageTelegram
+from telejson import Telejson
 
 __author__ = 'nekmo'
 __dir__ = os.path.dirname(__file__)
@@ -21,38 +24,37 @@ class Telegram(Protocol):
     def init(self):
         self.groupchats = GroupChatsTelegram(self)
         self.bot = None # User Bot
-        self.tg = pytg.Telegram(TELEGRAM_BIN, TELEGRAM_PUB)
-        # Create processing pipeline
-        pipeline = broadcast([
-            tg_message(self.input_message(self.tg))
-        ])
-        self.tg.register_pipeline(pipeline)
-        # Start telegram cli
-        self.tg.start()
+        self.telejson = Telejson()
+        # self.tg = pytg.Telegram(TELEGRAM_BIN, TELEGRAM_PUB)
+        # # Create processing pipeline
+        # pipeline = broadcast([
+        #     tg_message(self.input_message(self.tg))
+        # ])
+        # self.tg.register_pipeline(pipeline)
+        # # Start telegram cli
+        # self.tg.start()
 
     def prepare_message(self, body):
-        if not isinstance(body, (str, unicode)):
-            body = str(body)
-        try:
-            body = body.decode('utf-8')
-        except:
-            pass
+        # if not isinstance(body, (str, unicode)):
+        #     body = unicode(body)
+        # try:
+        #     body = body.decode('utf-8')
+        # except:
+        #     pass
+        body = str(body)
+        body = body.decode('utf-8')
         return body
 
-    @coroutine
-    def input_message(self, tg):
-        # To avoid ping flood attack, we'll respond to ping once every 10 sec
-        try:
-            while True:
-                msg = (yield)
-                self.propagate('message', MessageTelegram(self, msg))
-        except GeneratorExit:
-            pass
-
     def run(self):
-        while True:
+        self.telejson.start()
+        self.sender = self.telejson.get_sender()
+        def handler(msg):
+            self.propagate('message', MessageTelegram(self, msg))
+        self.telejson.handler(handler)
+
+        # while True:
             # Keep on polling so that messages will pass through our pipeline
-            self.tg.poll()
+            # self.tg.poll()
 
     def close(self):
         logger.debug('Closing Telegram...')

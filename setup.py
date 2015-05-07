@@ -66,7 +66,7 @@ setup(
     keywords=['nekbot', 'bot', 'telegram', 'chat'],
     
     dependency_links=[
-        'https://bitbucket.org/Nekmo/pytg2/get/74f08a3bda11.zip#egg=pytg2',
+        'https://bitbucket.org/luckydonald/pytg2/get/master.zip#egg=pytg2',
     ],
 
     entry_points={
