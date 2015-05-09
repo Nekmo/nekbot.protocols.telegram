@@ -1,4 +1,3 @@
-# coding=utf-8
 from logging import getLogger
 import os
 # import pytg
@@ -35,17 +34,17 @@ class Telegram(Protocol):
         # self.tg.start()
 
     def prepare_message(self, body):
-        # if not isinstance(body, (str, unicode)):
-        #     body = unicode(body)
-        # try:
-        #     body = body.decode('utf-8')
-        # except:
-        #     pass
-        body = str(body)
-        body = body.decode('utf-8')
+        if not isinstance(body, (str, unicode)):
+            body = str(body)
+        try:
+            body = body.decode('utf-8')
+        except:
+            pass
         return body
 
     def run(self):
+        # self.telejson.telegram_cli.set_log_level(str(6))
+        # self.telejson.telegram_cli.set_log_file('/tmp/telegram.log')
         self.telejson.start()
         self.sender = self.telejson.get_sender()
         def handler(msg):
@@ -58,4 +57,5 @@ class Telegram(Protocol):
 
     def close(self):
         logger.debug('Closing Telegram...')
-        self.tg.safe_quit()
+        self.telejson.close()
+        # self.tg.safe_quit()

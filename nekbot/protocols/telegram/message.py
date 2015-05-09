@@ -34,3 +34,6 @@ class MessageTelegram(Message):
     @property
     def is_groupchat(self):
         return self.msg.receiver.type == 'group'
+
+    def _copy(self):
+        return self.__class__(self.protocol, self.msg)

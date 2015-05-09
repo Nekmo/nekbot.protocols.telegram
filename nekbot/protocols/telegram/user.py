@@ -1,3 +1,5 @@
+from nekbot.protocols.base.user import Users
+
 __author__ = 'nekmo'
 
 from nekbot.protocols import User
@@ -10,3 +12,7 @@ class UserTelegram(User):
 
     def send_message(self, body, notice=False):
         self.protocol.sender.send_msg(self.user.cmd, self.protocol.prepare_message(body))
+
+
+class UsersTelegram(Users):
+    pass
