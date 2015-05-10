@@ -22,7 +22,7 @@ class GroupChatTelegram(GroupChat):
         #     user = UserIRC(self.server, user)
         #     users[str(user)] = user
         if override: self.users = users
-        print(self.protocol.sender.chat_info(self.receiver.title))
+        self.protocol.sender.chat_info(self.receiver.cmd)
         logger.debug('Users in %s: %s' % (self.name, ', '.join(users)))
         return users
 
