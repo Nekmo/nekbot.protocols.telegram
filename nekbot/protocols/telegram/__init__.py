@@ -3,6 +3,10 @@ import os
 import pytg2
 from pytg2.utils import coroutine
 import subprocess
+import time
+import threading
+import signal
+import socket
 from nekbot.protocols import Protocol
 from nekbot.protocols.telegram.group_chat import GroupChatsTelegram
 from nekbot.protocols.telegram.message import MessageTelegram
@@ -35,14 +39,6 @@ class Telegram(Protocol):
             pubkey_file=TELEGRAM_PUB)
         self.receiver = self.tg.receiver
         self.sender = self.tg.sender
-        # self.tg = pytg.Telegram(TELEGRAM_BIN, TELEGRAM_PUB)
-        # # Create processing pipeline
-        # pipeline = broadcast([
-        #     tg_message(self.input_message(self.tg))
-        # ])
-        # self.tg.register_pipeline(pipeline)
-        # # Start telegram cli
-        # self.tg.start()
 
     def prepare_message(self, body):
         if not isinstance(body, (str, unicode)):
@@ -54,8 +50,6 @@ class Telegram(Protocol):
         return body
 
     def run(self):
-        # self.telejson.telegram_cli.set_log_level(str(6))
-        # self.telejson.telegram_cli.set_log_file('/tmp/telegram.log')
         @coroutine  # from pytg2.utils import coroutine
         def handler():
             while not self.nekbot.is_quit:
@@ -64,10 +58,17 @@ class Telegram(Protocol):
         self.receiver.start()
         self.receiver.message(handler())
 
-        # while True:
-            # Keep on polling so that messages will pass through our pipeline
-            # self.tg.poll()
-
     def close(self):
-        logger.debug('Closing Telegram...')
-        self.tg.stopCLI()
+        logger.debug('Closing Telegram-cli...')
+        l = threading.Thread(target=self.sender.safe_quit)
+        l.daemon = True
+        l.start()
+        l.join(5)
+        logger.debug('Send terminate signal to sender...')
+        self.sender.terminate()
+        logger.debug('Send stop signal to receiver...')
+        self.receiver.stop()
+        self.sender.s.close()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(('127.0.0.1', 4458))
+        s.close()
