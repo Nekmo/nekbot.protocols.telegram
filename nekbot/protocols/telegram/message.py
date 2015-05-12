@@ -1,5 +1,5 @@
+import warnings
 from logging import getLogger
-from datetime import datetime, timedelta
 from nekbot.protocols.telegram.group_chat import GroupChatTelegram
 from nekbot.protocols.telegram.user import UserTelegram
 from nekbot.protocols import Message
@@ -18,8 +18,8 @@ class MessageTelegram(Message):
             groupchat = GroupChatTelegram(protocol, msg.receiver)
         else:
             groupchat = None
-        if protocol.bot is None:
-            protocol.bot = UserTelegram(protocol, msg.receiver)
+        if self.is_own and not self.protocol.has_bot:
+            self.protocol.set_bot(user)
         self.historical = msg.freshness != 'new'
         super(MessageTelegram, self).__init__(protocol, msg.text, user, groupchat)
 
@@ -28,7 +28,7 @@ class MessageTelegram(Message):
         return True if self.is_groupchat else False
 
     @property
-    def is_from_me(self):
+    def is_own(self):
         return self.msg.own
 
     @property

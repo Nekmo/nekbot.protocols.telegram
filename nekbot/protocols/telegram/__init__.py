@@ -25,15 +25,12 @@ logger = getLogger('nekbot.protocols.telegram')
 
 
 class Telegram(Protocol):
-    groupchats = None
-    bot = None
+    features = ['newline']
     tg = None
     receiver = None
     sender = None
 
     def init(self):
-        self.groupchats = GroupChatsTelegram(self)
-        self.bot = None  # User Bot
         self.tg = pytg2.Telegram(
             telegram=TELEGRAM_BIN,
             pubkey_file=TELEGRAM_PUB)
