@@ -15,6 +15,7 @@ class GroupChatTelegram(GroupChat):
         GroupChat.__init__(self, protocol, receiver.title)
         self.users = UsersTelegram(protocol)
         self.id = receiver.id
+        self.send_method
 
     def get_users(self, override=True):
         users = UsersTelegram(self.protocol)

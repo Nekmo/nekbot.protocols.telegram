@@ -18,10 +18,10 @@ class MessageTelegram(Message):
             groupchat = GroupChatTelegram(protocol, msg.receiver)
         else:
             groupchat = None
-        if self.is_own and not self.protocol.has_bot:
-            self.protocol.set_bot(user)
         self.historical = msg.freshness != 'new'
         super(MessageTelegram, self).__init__(protocol, msg.text, user, groupchat)
+        if self.is_own and not self.protocol.has_bot:
+            self.protocol.set_bot(user)
 
     @property
     def is_public(self):

@@ -25,7 +25,7 @@ logger = getLogger('nekbot.protocols.telegram')
 
 
 class Telegram(Protocol):
-    features = ['newline']
+    features = ['newline', 'groupchats']
     tg = None
     receiver = None
     sender = None
@@ -57,15 +57,15 @@ class Telegram(Protocol):
 
     def close(self):
         logger.debug('Closing Telegram-cli...')
-        l = threading.Thread(target=self.sender.safe_quit)
-        l.daemon = True
-        l.start()
-        l.join(5)
-        logger.debug('Send terminate signal to sender...')
-        self.sender.terminate()
-        logger.debug('Send stop signal to receiver...')
-        self.receiver.stop()
-        self.sender.s.close()
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(('127.0.0.1', 4458))
-        s.close()
+        # l = threading.Thread(target=self.sender.safe_quit)
+        # l.daemon = True
+        # l.start()
+        # l.join(5)
+        # logger.debug('Send terminate signal to sender...')
+        # self.sender.terminate()
+        # logger.debug('Send stop signal to receiver...')
+        # self.receiver.stop()
+        # self.sender.s.close()
+        # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # s.connect(('127.0.0.1', 4458))
+        # s.close()
