@@ -11,7 +11,8 @@ class UserTelegram(User):
         User.__init__(self, protocol, user.print_name, user.id)
 
     def send_message(self, body, notice=False):
-        self.protocol.sender.send_msg(self.user.cmd, self.protocol.prepare_message(body))
+        body = self.protocol.prepare_message(body)
+        self.protocol.sender.send_msg(self.user.cmd, body)
 
 
 class UsersTelegram(Users):
