@@ -14,14 +14,16 @@ class MessageTelegram(Message):
         logger.debug('New message: %s' % vars(msg))
         user = UserTelegram(protocol, msg.sender)
         self.msg = msg
-        if self.is_groupchat:
-            groupchat = GroupChatTelegram(protocol, msg.receiver)
-        else:
-            groupchat = None
         self.historical = msg.freshness != 'new'
-        super(MessageTelegram, self).__init__(protocol, msg.text, user, groupchat)
+        super(MessageTelegram, self).__init__(protocol, msg.text, user)
         if self.is_own and not self.protocol.has_bot:
             self.protocol.set_bot(user)
+
+    def create_group_chat(self):
+        GroupChatTelegram(self.protocol, self.msg.receiver)
+
+    def get_group_chat_id(self):
+        return str(self.msg.receiver.id)
 
     @property
     def is_public(self):

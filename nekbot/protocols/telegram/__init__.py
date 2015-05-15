@@ -2,30 +2,39 @@ from logging import getLogger
 import os
 import pytg2
 from pytg2.utils import coroutine
-import subprocess
-import time
-import threading
-import signal
-import socket
+from nekbot.core import event
+from nekbot.protocols.base.event import Event
 from nekbot.protocols import Protocol
 from nekbot.protocols.telegram.group_chat import GroupChatsTelegram
 from nekbot.protocols.telegram.message import MessageTelegram
+from nekbot.protocols.telegram.user import UserTelegram
 import telejson
 
 __author__ = 'nekmo'
 
 telejson_dir = os.path.dirname(os.path.abspath(telejson.__file__))
 
-TELEGRAM_BIN = 'telegram-cli'
+TELEGRAM_BIN = '/home/nekmo/Src/tg-for-pytg2/bin/telegram-cli'
 TELEGRAM_PUB = os.path.abspath(os.path.join(telejson_dir, 'tg-server.pub'))
-print(TELEGRAM_PUB)
 
 
 logger = getLogger('nekbot.protocols.telegram')
 
+EVENTS_TYPES = {
+    'message': ['message', MessageTelegram],
+    'chat_info': ['telegram.chat_info', Event],
+}
+
+
+@event('telegram.chat_info')
+def chat_info(protocol, ev):
+    groupchat = protocol.groupchats.get_or_create(ev.data.id, ev.data)
+    groupchat.users.clear()
+    groupchat.users.update({user.id: UserTelegram(protocol, user) for user in ev.data.members})
+    print(groupchat.users)
 
 class Telegram(Protocol):
-    features = ['newline', 'groupchats']
+    features = ['newline', 'groupchats', 'historical']
     tg = None
     receiver = None
     sender = None
@@ -50,8 +59,12 @@ class Telegram(Protocol):
         @coroutine  # from pytg2.utils import coroutine
         def handler():
             while not self.nekbot.is_quit:
-                msg = (yield)  # it waits until it got a message, stored now in msg.
-                self.propagate('message', MessageTelegram(self, msg))
+                stanza = (yield)
+                event_name, stanza_class = EVENTS_TYPES.get(stanza.event)
+                if event_name is None:
+                    logger.warning('unsupported type: %s' % stanza.event)
+                    continue
+                self.propagate(event_name, stanza_class(self, stanza))
         self.receiver.start()
         self.receiver.message(handler())
 

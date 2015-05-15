@@ -10,22 +10,13 @@ logger = getLogger('nekbot.protocols.telegram.group_chat')
 
 
 class GroupChatTelegram(GroupChat):
-    def __init__(self, protocol, receiver):
+    def __init__(self, protocol, receiver, group_chat_id=None):
         self.receiver = receiver
-        GroupChat.__init__(self, protocol, receiver.title)
         self.users = UsersTelegram(protocol)
-        self.id = receiver.id
-        self.send_method
+        GroupChat.__init__(self, protocol, receiver.title, receiver.id)
 
     def get_users(self, override=True):
-        users = UsersTelegram(self.protocol)
-        # for user in self.receiver.users():
-        #     user = UserIRC(self.server, user)
-        #     users[str(user)] = user
-        if override: self.users = users
-        # self.protocol.sender.chat_info(self.receiver.cmd)
-        logger.debug('Users in %s: %s' % (self.name, ', '.join(users)))
-        return users
+        self.protocol.sender.chat_info(self.receiver.cmd)
 
     def send_message(self, body, notice=False):
         self.protocol.sender.send_msg(self.receiver.cmd, self.protocol.prepare_message(body))
