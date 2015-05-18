@@ -14,7 +14,7 @@ __author__ = 'nekmo'
 
 telejson_dir = os.path.dirname(os.path.abspath(telejson.__file__))
 
-TELEGRAM_BIN = '/home/nekmo/Src/tg-for-pytg2/bin/telegram-cli'
+TELEGRAM_BIN = 'telegram-cli'
 TELEGRAM_PUB = os.path.abspath(os.path.join(telejson_dir, 'tg-server.pub'))
 
 
@@ -31,10 +31,10 @@ def chat_info(protocol, ev):
     groupchat = protocol.groupchats.get_or_create(ev.data.id, ev.data)
     groupchat.users.clear()
     groupchat.users.update({user.id: UserTelegram(protocol, user) for user in ev.data.members})
-    print(groupchat.users)
 
 class Telegram(Protocol):
     features = ['newline', 'groupchats', 'historical']
+    user_class = UserTelegram
     tg = None
     receiver = None
     sender = None
@@ -48,7 +48,7 @@ class Telegram(Protocol):
 
     def prepare_message(self, body):
         if not isinstance(body, (str, unicode)):
-            body = str(body)
+            body = unicode(body)
         try:
             body = body.decode('utf-8')
         except:
